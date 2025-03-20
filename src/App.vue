@@ -16,11 +16,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from './services/api';
 import ContactForm from './components/ContactForm.vue';
 import ContactList from './components/ContactList.vue';
-
-const API_URL = 'https://localhost:7173/api/Contacts'; 
 
 export default {
   components: {
@@ -38,14 +36,13 @@ export default {
   },
   methods: {
     async fetchContacts() {
-      const response = await axios.get(API_URL);
-      this.contacts = response.data;
+      this.contacts = await api.getContacts();
     },
     async handleSubmitContact(contact) {
       if (contact.id) {
-        await axios.put(`${API_URL}/${contact.id}`, contact);
+        await api.updateContact(contact.id, contact);
       } else {
-        await axios.post(API_URL, contact);
+        await api.addContact(contact);
       }
       this.fetchContacts();
       this.resetForm();
@@ -54,7 +51,7 @@ export default {
       this.contactToEdit = contact;
     },
     async handleDeleteContact(id) {
-      await axios.delete(`${API_URL}/${id}`);
+      await api.deleteContact(id);
       this.fetchContacts();
     },
     resetForm() {
