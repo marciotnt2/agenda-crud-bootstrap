@@ -3,6 +3,7 @@
     <h1 class="mb-4">Agenda de Contatos</h1>
     <ContactForm
       :contactToEdit="contactToEdit"
+      :contacts="contacts"
       @submit-contact="handleSubmitContact"
       @cancel="resetForm"
     />
