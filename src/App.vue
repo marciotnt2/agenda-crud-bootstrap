@@ -1,26 +1,70 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="container mt-5">
+    <h1 class="mb-4">Agenda de Contatos</h1>
+    <ContactForm
+      :contactToEdit="contactToEdit"
+      @submit-contact="handleSubmitContact"
+      @cancel="resetForm"
+    />
+    <ContactList
+      :contacts="contacts"
+      @edit-contact="handleEditContact"
+      @delete-contact="handleDeleteContact"
+    />
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import axios from 'axios';
+import ContactForm from './components/ContactForm.vue';
+import ContactList from './components/ContactList.vue';
+
+const API_URL = 'https://localhost:7173/api/Contacts'; 
 
 export default {
-  name: 'App',
   components: {
-    HelloWorld
+    ContactForm,
+    ContactList
+  },
+  data() {
+    return {
+      contacts: [],
+      contactToEdit: null
+    };
+  },
+  created() {
+    this.fetchContacts();
+  },
+  methods: {
+    async fetchContacts() {
+      const response = await axios.get(API_URL);
+      this.contacts = response.data;
+    },
+    async handleSubmitContact(contact) {
+      if (contact.id) {
+        await axios.put(`${API_URL}/${contact.id}`, contact);
+      } else {
+        await axios.post(API_URL, contact);
+      }
+      this.fetchContacts();
+      this.resetForm();
+    },
+    handleEditContact(contact) {
+      this.contactToEdit = contact;
+    },
+    async handleDeleteContact(id) {
+      await axios.delete(`${API_URL}/${id}`);
+      this.fetchContacts();
+    },
+    resetForm() {
+      this.contactToEdit = null;
+    }
   }
-}
+};
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+body {
+  font-family: Arial, sans-serif;
 }
 </style>
